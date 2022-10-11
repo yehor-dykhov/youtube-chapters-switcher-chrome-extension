@@ -1,3 +1,28 @@
 body {
-  background-color: #1c1c1c;
+  background-color: white;
+}
+
+.content {
+  width: 500px;
+  padding: 10px;
+}
+
+.chapters {
+  height: 450px;
+  overflow-x: auto;
+}
+
+.chapter {
+
+}
+
+.selected {
+  color: red;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 10px;
 }
