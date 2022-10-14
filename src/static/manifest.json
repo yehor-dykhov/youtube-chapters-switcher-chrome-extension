@@ -1,27 +1,43 @@
 {
-  "name": "React Extension",
-  "description": "Chrome Extension in React!",
-  "version": "1.0.0",
-  "manifest_version": 3,
-  "icons": {
-    "16": "icon.png",
-    "48": "icon.png",
-    "128": "icon.png"
-  },
-  "action": {
-    "default_popup": "popup.html",
-    "default_title": "React Extension",
-    "default_icon": "icon.png"
-  },
-  "permissions": ["storage"],
-  "options_page": "options.html",
-  "background": {
-    "service_worker": "background.js"
-  },
-  "content_scripts": [
-    {
-      "matches": ["<all_urls>"],
-      "js": ["contentScript.js"]
+    "name": "Youtube Chapters Switcher Chrome Extension",
+    "description": "The extension for chrome which allowed to switch between chapters in youtube player",
+    "version": "0.0.1",
+    "manifest_version": 3,
+    "icons": {
+        "16": "icon.png",
+        "48": "icon.png",
+        "128": "icon.png"
+    },
+    "action": {
+        "default_popup": "popup.html",
+        "default_title": "Youtube Chapters Switcher",
+        "default_icon": "icon.png"
+    },
+    "permissions": ["storage", "commands", "tabs"],
+    "options_page": "options.html",
+    "background": {
+        "service_worker": "background.js"
+    },
+    "content_scripts": [
+        {
+            "matches": ["https://www.youtube.com/*", "https://youtu.be/*"],
+            "js": ["contentScript.js"]
+        }
+    ],
+    "commands": {
+        "ycs-forward": {
+            "suggested_key": {
+                "default": "Shift+Alt+Right",
+                "mac": "Shift+Command+Right"
+            },
+            "description": "Switch the video chapter to the next one."
+        },
+        "ycs-back": {
+            "suggested_key": {
+                "default": "Shift+Alt+Left",
+                "mac": "Shift+Command+Left"
+            },
+            "description": "Switch the video chapter to the previous one."
+        }
     }
-  ]
 }
