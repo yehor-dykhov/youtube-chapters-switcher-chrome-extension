@@ -12,7 +12,7 @@ const player = new Player();
 const getVideoChapters = async (videoUrl: string) => {
     const videoId = getYoutubeVideoId(videoUrl);
 
-    const videoData = await getVideoData(videoId, 'AIzaSyAw1ZgOioRtzReuUZ_wLPS5OHTVVn0YBhA');
+    const videoData = await getVideoData(videoId, process.env['YOUTUBE_API_KEY']);
     const chapters = getChapters(videoData.description);
 
     return chapters;
@@ -33,16 +33,26 @@ const initializeData = (chapters: Chapter[]) => {
 };
 
 window.addEventListener('load', async (event) => {
-    const chapters = await getVideoChapters(window.location.href);
+    let chapters = [];
+
+    try {
+        chapters = await getVideoChapters(window.location.href);
+    } catch (e) {
+        console.log('==>ERROR of getting chapters:, ', e);
+    }
 
     initializeData(chapters);
 });
 
 chrome.runtime.onMessage.addListener(async (request) => {
-    console.log('==>request', request);
-
     if (request.message === MESSAGES.CHANGE_URL) {
-        const chapters = await getVideoChapters(request.url);
+        let chapters = [];
+
+        try {
+            chapters = await getVideoChapters(request.url);
+        } catch (e) {
+            console.log('==>ERROR of getting chapters:, ', e);
+        }
 
         initializeData(chapters);
     }
@@ -67,7 +77,6 @@ chrome.runtime.onMessage.addListener(async (request) => {
             }
 
             if (currentIndex === chs.length - 1 && request.step === 1) {
-                console.log('==>duration', duration);
                 player.currentTime = duration;
                 return;
             }

@@ -9,4 +9,5 @@ type YoutubeBodyItems = {
 
 export type YoutubeBody = {
     items: YoutubeBodyItems[];
+    error?: Error
 };
