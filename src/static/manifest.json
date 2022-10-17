@@ -11,7 +11,11 @@
     "action": {
         "default_popup": "popup.html",
         "default_title": "Youtube Chapters Switcher",
-        "default_icon": "icon.png"
+        "default_icon": {
+            "16": "icon.png",
+            "24": "icon.png",
+            "32": "icon.png"
+        }
     },
     "permissions": ["storage", "commands", "tabs"],
     "options_page": "options.html",

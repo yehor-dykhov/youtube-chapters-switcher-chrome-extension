@@ -9,56 +9,87 @@ import { Player } from '../player';
 
 const player = new Player();
 
-const getVideoChapters = async (videoUrl: string) => {
-    const videoId = getYoutubeVideoId(videoUrl);
-
+const getVideoChapters = async (videoId: string) => {
     const videoData = await getVideoData(videoId, process.env['YOUTUBE_API_KEY']);
     const chapters = getChapters(videoData.description);
 
     return chapters;
 };
 
+const changeIconActivity = (isActive) => {
+    chrome.runtime.sendMessage({ message: MESSAGES.CHANGE_ACTIVE_ICON, isActive });
+};
+
 const handleCurrentTimeChange = throttle((e) => {
-    Storage.setCurrentTime(e.target.currentTime);
+    const videoId = getYoutubeVideoId(window.location.href);
+    Storage.setCurrentTime(videoId, e.target.currentTime);
 }, 1000);
 
-const initializeData = (chapters: Chapter[]) => {
+const initializeData = (videoId: string, chapters: Chapter[]) => {
     if (chapters.length > 0) {
-        Storage.setChapters(chapters);
+        Storage.setChapters(videoId, chapters);
 
         player.init(handleCurrentTimeChange);
 
-        Storage.setDuration(player.duration);
+        Storage.setDuration(videoId, player.duration);
+
+        return;
     }
+
+    Storage.setChapters(videoId, []);
 };
 
 window.addEventListener('load', async (event) => {
+    changeIconActivity(false);
+
     let chapters = [];
+    const videoId = getYoutubeVideoId(window.location.href);
+
+    if (!Boolean(videoId)) {
+        changeIconActivity(false);
+    }
 
     try {
-        chapters = await getVideoChapters(window.location.href);
+        chapters = await getVideoChapters(videoId);
     } catch (e) {
         console.log('==>ERROR of getting chapters:, ', e);
     }
 
-    initializeData(chapters);
+    changeIconActivity(Boolean(chapters.length));
+
+    Storage.setActiveVideoId(videoId);
+
+    initializeData(videoId, chapters);
 });
 
 chrome.runtime.onMessage.addListener(async (request) => {
     if (request.message === MESSAGES.CHANGE_URL) {
         let chapters = [];
+        const videoId = getYoutubeVideoId(request.url);
+
+        if (!Boolean(videoId)) {
+            changeIconActivity(false);
+        }
 
         try {
-            chapters = await getVideoChapters(request.url);
+            chapters = await getVideoChapters(videoId);
         } catch (e) {
             console.log('==>ERROR of getting chapters:, ', e);
         }
 
-        initializeData(chapters);
+        changeIconActivity(Boolean(chapters.length));
+
+        initializeData(videoId, chapters);
     }
 
     if (request.message === MESSAGES.CHANGE_CHAPTER) {
-        Storage.getChapters().then((chs) => {
+        const videoId = getYoutubeVideoId(window.location.href);
+
+        Storage.getChapters(videoId).then((chs) => {
+            if (chs.length === 0) {
+                return;
+            }
+
             const currentTime = player.currentTime;
             const duration = player.duration;
             let currentIndex: number;
@@ -88,5 +119,11 @@ chrome.runtime.onMessage.addListener(async (request) => {
 
             player.currentTime = chs[currentIndex + request.step].start;
         });
+    }
+
+    if (request.message === MESSAGES.CHANGE_ACTIVE_TAB) {
+        const videoId = getYoutubeVideoId(window.location.href);
+
+        Storage.setActiveVideoId(videoId);
     }
 });
