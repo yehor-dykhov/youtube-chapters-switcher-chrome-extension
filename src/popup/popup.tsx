@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Chapter } from 'get-youtube-chapters';
+import getYoutubeVideoId from 'get-youtube-id';
 
 import Storage from '../storage';
 
@@ -22,14 +23,19 @@ const App: React.FC<{}> = () => {
     const [duration, setDuration] = useState<number>(0);
 
     useEffect(() => {
-        Storage.getChapters().then((chs) => setChapters(chs));
-        Storage.getDuration().then((time) => setDuration(time));
-        Storage.getCurrentTime().then((time) => setCurrentTime(time));
+        Storage.getActiveVideoId().then((id) => {
+            Storage.getChapters(id).then((chs) => setChapters(chs));
+            Storage.getDuration(id).then((time) => setDuration(time));
+            Storage.getCurrentTime(id).then((time) => setCurrentTime(time));
+        });
+
         setLoading(false);
 
         const timer = setInterval(() => {
-            Storage.getCurrentTime().then((time) => {
-                setCurrentTime(time);
+            Storage.getActiveVideoId().then((id) => {
+                Storage.getCurrentTime(id).then((time) => {
+                    setCurrentTime(time);
+                });
             });
         }, 1000);
 

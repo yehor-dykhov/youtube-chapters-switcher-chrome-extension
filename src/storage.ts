@@ -1,82 +1,84 @@
 import { Chapter } from 'get-youtube-chapters';
 
 enum LocalStorageKeys {
+    ACTIVE_ID = 'active_id',
     CHAPTERS = 'chapters',
     CURRENT_TIME = 'current_time',
     DURATION = 'duration',
 }
 
-const setChapters = (chapters: Chapter[]): Promise<void> => {
+const setChapters = (id: string, chapters: Chapter[]): Promise<void> => {
     return new Promise<void>((resolve) => {
-        chrome.storage.local.set({ [LocalStorageKeys.CHAPTERS]: chapters }, () => {
+        chrome.storage.local.set({ [`${LocalStorageKeys.CHAPTERS}-${id}`]: chapters }, () => {
             resolve();
         });
     });
 };
 
-const getChapters = (): Promise<Chapter[]> => {
+const getChapters = (id: string): Promise<Chapter[]> => {
     return new Promise<Chapter[]>((resolve) => {
-        chrome.storage.local.get([LocalStorageKeys.CHAPTERS], (result) => {
-            resolve(result[LocalStorageKeys.CHAPTERS]);
+        const key = `${LocalStorageKeys.CHAPTERS}-${id}`;
+    
+        console.log('==>key', key);
+
+        chrome.storage.local.get([key], (result) => {
+            console.log('==>result', result);
+            resolve(result[key]);
         });
     });
 };
 
-const setCurrentTime = (time: number): Promise<void> => {
+const setCurrentTime = (id: string, time: number): Promise<void> => {
     return new Promise<void>((resolve) => {
-        chrome.storage.local.set({ [LocalStorageKeys.CURRENT_TIME]: time }, () => {
+        chrome.storage.local.set({ [`${LocalStorageKeys.CURRENT_TIME}-${id}`]: time }, () => {
             resolve();
         });
     });
 };
 
-const getCurrentTime = (): Promise<number> => {
+const getCurrentTime = (id: string): Promise<number> => {
     return new Promise<number>((resolve) => {
-        chrome.storage.local.get([LocalStorageKeys.CURRENT_TIME], (result) => {
-            resolve(result[LocalStorageKeys.CURRENT_TIME] || 0);
+        const key = `${LocalStorageKeys.CURRENT_TIME}-${id}`;
+
+        chrome.storage.local.get([key], (result) => {
+            resolve(result[key] || 0);
         });
     });
 };
 
-const setDuration = (duration: number): Promise<void> => {
+const setDuration = (id: string, duration: number): Promise<void> => {
     return new Promise<void>((resolve) => {
-        chrome.storage.local.set({ [LocalStorageKeys.DURATION]: duration }, () => {
+        chrome.storage.local.set({ [`${LocalStorageKeys.DURATION}-${id}`]: duration }, () => {
             resolve();
         });
     });
 };
 
-const getDuration = (): Promise<number> => {
+const getDuration = (id: string): Promise<number> => {
     return new Promise<number>((resolve) => {
-        chrome.storage.local.get([LocalStorageKeys.DURATION], (result) => {
-            resolve(result[LocalStorageKeys.DURATION] || 0);
+        const key = `${LocalStorageKeys.DURATION}-${id}`;
+
+        chrome.storage.local.get([key], (result) => {
+            resolve(result[key] || 0);
         });
     });
 };
 
-// export const setOptionsToStorage = (options: IOptions): Promise<void> => {
-//     return new Promise<void>((resolve) => {
-//         chrome.storage.local.set(
-//             {
-//                 ...(options.units && { [LocalStorageKeys.UNITS]: options.units }),
-//                 ...(options.homeCity !== undefined && { [LocalStorageKeys.HOME_CITY]: options.homeCity }),
-//                 ...(options.overlayPopup !== undefined && { [LocalStorageKeys.OVERLAY_POPUP]: options.overlayPopup }),
-//             },
-//             () => resolve()
-//         );
-//     });
-// };
+const setActiveVideoId = (id: string): Promise<void> => {
+    return new Promise<void>((resolve) => {
+        chrome.storage.local.set({ [LocalStorageKeys.ACTIVE_ID]: id }, () => {
+            resolve();
+        });
+    });
+};
 
-// export const getOptionsFromStorage = (): Promise<IOptions> => {
-//     return new Promise<IOptions>((resolve) => {
-//         chrome.storage.local.get(
-//             [LocalStorageKeys.UNITS, LocalStorageKeys.HOME_CITY, LocalStorageKeys.OVERLAY_POPUP],
-//             (result: IOptions) => {
-//                 resolve(result);
-//             }
-//         );
-//     });
-// };
+const getActiveVideoId = (): Promise<string> => {
+    return new Promise<string>((resolve) => {
+        chrome.storage.local.get([LocalStorageKeys.ACTIVE_ID], (result) => {
+            resolve(result[LocalStorageKeys.ACTIVE_ID]);
+        });
+    });
+};
 
 export default {
     setChapters,
@@ -84,5 +86,7 @@ export default {
     setCurrentTime,
     getCurrentTime,
     setDuration,
-    getDuration
+    getDuration,
+    setActiveVideoId,
+    getActiveVideoId
 };

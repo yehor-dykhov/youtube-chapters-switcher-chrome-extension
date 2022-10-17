@@ -22,11 +22,27 @@ chrome.commands.onCommand.addListener((command) => {
     }
 });
 
+chrome.tabs.onActivated.addListener(() => {
+    chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+        var activeTab = tabs[0];
+        chrome.tabs.sendMessage(activeTab.id, { message: MESSAGES.CHANGE_ACTIVE_TAB });
+    });
+});
+
 chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
     if (changeInfo.url) {
         chrome.tabs.sendMessage(tabId, {
             message: MESSAGES.CHANGE_URL,
             url: changeInfo.url,
         });
+    }
+});
+
+chrome.runtime.onMessage.addListener((data) => {
+    switch (data.message) {
+        case MESSAGES.CHANGE_ACTIVE_ICON: {
+            chrome.action.setIcon({ path: data.isActive ? 'icon.png' : 'icon_disabled.png' });
+            break;
+        }
     }
 });
