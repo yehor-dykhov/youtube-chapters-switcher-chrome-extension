@@ -6,6 +6,7 @@ import { MESSAGES } from '../constants';
 import { getVideoData } from '../helpers';
 import Storage from '../storage';
 import { Player } from '../player';
+import { IconDetails } from '../types';
 
 const player = new Player();
 
@@ -18,6 +19,10 @@ const getVideoChapters = async (videoId: string) => {
 
 const changeIconActivity = (isActive) => {
     chrome.runtime.sendMessage({ message: MESSAGES.CHANGE_ACTIVE_ICON, isActive });
+};
+
+const changeIconText = (count: number) => {
+    chrome.runtime.sendMessage({ message: MESSAGES.CHANGE_ICON_TEXT, count });
 };
 
 const handleCurrentTimeChange = throttle((e) => {
@@ -39,14 +44,20 @@ const initializeData = (videoId: string, chapters: Chapter[]) => {
     Storage.setChapters(videoId, []);
 };
 
-window.addEventListener('load', async (event) => {
-    changeIconActivity(false);
+const changeIconDetails = ({ isActive = false, count = 0 }: IconDetails) => {
+    changeIconActivity(isActive);
+    changeIconText(count);
+};
+
+const initializeChapters = async (href: string) => {
+    changeIconDetails({});
 
     let chapters = [];
-    const videoId = getYoutubeVideoId(window.location.href);
+    const videoId = getYoutubeVideoId(href);
 
     if (!Boolean(videoId)) {
-        changeIconActivity(false);
+        changeIconDetails({});
+        Storage.setActiveVideoId(null);
     }
 
     try {
@@ -55,31 +66,20 @@ window.addEventListener('load', async (event) => {
         console.log('==>ERROR of getting chapters:, ', e);
     }
 
-    changeIconActivity(Boolean(chapters.length));
+    changeIconDetails({ isActive: Boolean(chapters.length), count: chapters.length });
 
     Storage.setActiveVideoId(videoId);
 
     initializeData(videoId, chapters);
+};
+
+window.addEventListener('load', async (event) => {
+    initializeChapters(window.location.href);
 });
 
 chrome.runtime.onMessage.addListener(async (request) => {
     if (request.message === MESSAGES.CHANGE_URL) {
-        let chapters = [];
-        const videoId = getYoutubeVideoId(request.url);
-
-        if (!Boolean(videoId)) {
-            changeIconActivity(false);
-        }
-
-        try {
-            chapters = await getVideoChapters(videoId);
-        } catch (e) {
-            console.log('==>ERROR of getting chapters:, ', e);
-        }
-
-        changeIconActivity(Boolean(chapters.length));
-
-        initializeData(videoId, chapters);
+        initializeChapters(request.url);
     }
 
     if (request.message === MESSAGES.CHANGE_CHAPTER) {

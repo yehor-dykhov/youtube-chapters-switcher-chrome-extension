@@ -64,7 +64,7 @@ const getDuration = (id: string): Promise<number> => {
     });
 };
 
-const setActiveVideoId = (id: string): Promise<void> => {
+const setActiveVideoId = (id: string | null): Promise<void> => {
     return new Promise<void>((resolve) => {
         chrome.storage.local.set({ [LocalStorageKeys.ACTIVE_ID]: id }, () => {
             resolve();
@@ -72,7 +72,7 @@ const setActiveVideoId = (id: string): Promise<void> => {
     });
 };
 
-const getActiveVideoId = (): Promise<string> => {
+const getActiveVideoId = (): Promise<string | null> => {
     return new Promise<string>((resolve) => {
         chrome.storage.local.get([LocalStorageKeys.ACTIVE_ID], (result) => {
             resolve(result[LocalStorageKeys.ACTIVE_ID]);
