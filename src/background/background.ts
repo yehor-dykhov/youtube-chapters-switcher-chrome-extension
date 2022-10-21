@@ -44,5 +44,9 @@ chrome.runtime.onMessage.addListener((data) => {
             chrome.action.setIcon({ path: data.isActive ? 'icon.png' : 'icon_disabled.png' });
             break;
         }
+        case MESSAGES.CHANGE_ICON_TEXT: {
+            chrome.action.setBadgeText({ text: data.count > 0 ? `${data.count}` : '' });
+            break;
+        }
     }
 });

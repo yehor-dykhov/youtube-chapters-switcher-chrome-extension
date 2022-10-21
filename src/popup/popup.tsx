@@ -23,11 +23,17 @@ const App: React.FC<{}> = () => {
     const [duration, setDuration] = useState<number>(0);
 
     useEffect(() => {
-        Storage.getActiveVideoId().then((id) => {
-            Storage.getChapters(id).then((chs) => setChapters(chs));
-            Storage.getDuration(id).then((time) => setDuration(time));
-            Storage.getCurrentTime(id).then((time) => setCurrentTime(time));
-        });
+        Storage.getActiveVideoId()
+            .then((id) => {
+                Storage.getChapters(id).then((chs) => setChapters(chs));
+                Storage.getDuration(id).then((time) => setDuration(time));
+                Storage.getCurrentTime(id).then((time) => setCurrentTime(time));
+            })
+            .catch(() => {
+                setChapters([]);
+                setDuration(0);
+                setCurrentTime(0);
+            });
 
         setLoading(false);
 

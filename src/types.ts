@@ -11,3 +11,8 @@ export type YoutubeBody = {
     items: YoutubeBodyItems[];
     error?: Error
 };
+
+export type IconDetails = {
+    isActive?: boolean;
+    count?: number;
+}
