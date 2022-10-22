@@ -29,7 +29,7 @@ export const containsTimeChapter = (chapters: Chapter[], chapter: Chapter, curre
     const index = chapters.findIndex((ch) => ch.start === chapter.start);
 
     return (
-        (index === chapters.length - 1 && currentTime > chapter.start) ||
-        (currentTime >= chapter.start && currentTime < chapters[index + 1].start)
+        (index === chapters.length - 1 && currentTime >= chapter.start) ||
+        (currentTime >= chapter.start && currentTime < chapters[index + 1]?.start)
     );
 };

@@ -1,23 +1,24 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Chapter } from 'get-youtube-chapters';
-import getYoutubeVideoId from 'get-youtube-id';
 
 import Storage from '../storage';
 
 import './popup.css';
 import { containsTimeChapter } from '../helpers';
 import { MESSAGES } from '../constants';
+import { IChapterChangeData } from '../types';
 
-const changeChapter = (step: number) => {
+const changeChapter = (chapterChangeData: IChapterChangeData) => {
     chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
         var activeTab = tabs[0];
-        chrome.tabs.sendMessage(activeTab.id, { message: MESSAGES.CHANGE_CHAPTER, step });
+        chrome.tabs.sendMessage(activeTab.id, { message: MESSAGES.CHANGE_CHAPTER, chapterChangeData });
     });
 };
 
 const App: React.FC<{}> = () => {
     const [loading, setLoading] = useState<boolean>(true);
+    const videoIdRef = useRef<string>();
     const [chapters, setChapters] = useState<Chapter[]>([]);
     const [currentTime, setCurrentTime] = useState<number>(0);
     const [duration, setDuration] = useState<number>(0);
@@ -25,6 +26,7 @@ const App: React.FC<{}> = () => {
     useEffect(() => {
         Storage.getActiveVideoId()
             .then((id) => {
+                videoIdRef.current = id;
                 Storage.getChapters(id).then((chs) => setChapters(chs));
                 Storage.getDuration(id).then((time) => setDuration(time));
                 Storage.getCurrentTime(id).then((time) => setCurrentTime(time));
@@ -38,18 +40,22 @@ const App: React.FC<{}> = () => {
         setLoading(false);
 
         const timer = setInterval(() => {
-            Storage.getActiveVideoId().then((id) => {
-                Storage.getCurrentTime(id).then((time) => {
-                    setCurrentTime(time);
-                });
+            Storage.getCurrentTime(videoIdRef.current).then((time) => {
+                setCurrentTime(time);
             });
         }, 1000);
 
         return () => clearInterval(timer);
     }, []);
 
-    const handlePreviousClick = () => changeChapter(-1);
-    const handleNextClick = () => changeChapter(1);
+    const handlePreviousClick = () => changeChapter({ step: -1 });
+
+    const handleNextClick = () => changeChapter({ step: 1 });
+
+    const handleChapterClick = (chapter: Chapter) => {
+        changeChapter({ time: chapter.start });
+        Storage.setCurrentTime(videoIdRef.current, chapter.start).then(() => setCurrentTime(chapter.start));
+    };
 
     return (
         <div className='content'>
@@ -62,11 +68,13 @@ const App: React.FC<{}> = () => {
                 <div className='chapters'>
                     {chapters.map((ch) => (
                         <p
+                            key={`${ch.title}_${ch.start}`}
                             className={
                                 containsTimeChapter(chapters, ch, currentTime, duration)
                                     ? 'chapter selected'
                                     : 'chapter'
                             }
+                            onClick={() => handleChapterClick(ch)}
                         >
                             {ch.title}
                         </p>
