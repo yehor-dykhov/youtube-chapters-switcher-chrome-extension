@@ -12,7 +12,12 @@ export type YoutubeBody = {
     error?: Error
 };
 
-export type IconDetails = {
-    isActive?: boolean;
-    count?: number;
+export interface IIconDetails {
+    isActive?: boolean,
+    count?: number,
+}
+
+export interface IChapterChangeData {
+    step?: number,
+    time?: number
 }

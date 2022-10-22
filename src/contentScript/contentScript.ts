@@ -6,7 +6,7 @@ import { MESSAGES } from '../constants';
 import { getVideoData } from '../helpers';
 import Storage from '../storage';
 import { Player } from '../player';
-import { IconDetails } from '../types';
+import { IIconDetails } from '../types';
 
 const player = new Player();
 
@@ -44,7 +44,7 @@ const initializeData = (videoId: string, chapters: Chapter[]) => {
     Storage.setChapters(videoId, []);
 };
 
-const changeIconDetails = ({ isActive = false, count = 0 }: IconDetails) => {
+const changeIconDetails = ({ isActive = false, count = 0 }: IIconDetails) => {
     changeIconActivity(isActive);
     changeIconText(count);
 };
@@ -78,11 +78,13 @@ window.addEventListener('load', async (event) => {
 });
 
 chrome.runtime.onMessage.addListener(async (request) => {
-    if (request.message === MESSAGES.CHANGE_URL) {
-        initializeChapters(request.url);
+    const { message, url, chapterChangeData } = request;
+
+    if (message === MESSAGES.CHANGE_URL) {
+        initializeChapters(url);
     }
 
-    if (request.message === MESSAGES.CHANGE_CHAPTER) {
+    if (message === MESSAGES.CHANGE_CHAPTER && !isNaN(chapterChangeData?.step)) {
         const videoId = getYoutubeVideoId(window.location.href);
 
         Storage.getChapters(videoId).then((chs) => {
@@ -103,25 +105,29 @@ chrome.runtime.onMessage.addListener(async (request) => {
                 }
             });
 
-            if (currentTime === duration && request.step === 1) {
+            if (currentTime === duration && chapterChangeData.step === 1) {
                 return;
             }
 
-            if (currentIndex === chs.length - 1 && request.step === 1) {
+            if (currentIndex === chs.length - 1 && chapterChangeData.step === 1) {
                 player.currentTime = duration;
                 return;
             }
 
-            if (currentIndex === 0 && request.step === -1) {
+            if (currentIndex === 0 && chapterChangeData.step === -1) {
                 player.currentTime = chs[currentIndex].start;
                 return;
             }
 
-            player.currentTime = chs[currentIndex + request.step].start;
+            player.currentTime = chs[currentIndex + chapterChangeData.step].start;
         });
     }
 
-    if (request.message === MESSAGES.CHANGE_ACTIVE_TAB) {
+    if (message === MESSAGES.CHANGE_CHAPTER && !isNaN(chapterChangeData?.time)) {
+        player.currentTime = chapterChangeData.time;
+    }
+
+    if (message === MESSAGES.CHANGE_ACTIVE_TAB) {
         const videoId = getYoutubeVideoId(window.location.href);
 
         Storage.setActiveVideoId(videoId);

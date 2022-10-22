@@ -3,12 +3,12 @@ body {
 }
 
 .content {
-  width: 500px;
+  width: 300px;
   padding: 10px;
 }
 
 .chapters {
-  height: 450px;
+  height: 350px;
   overflow-x: auto;
 }
 
@@ -16,8 +16,14 @@ body {
 
 }
 
+.chapter:hover {
+  cursor: pointer;
+  font-weight: 700;
+}
+
 .selected {
   color: red;
+  font-weight: 700;
 }
 
 .buttons {
