@@ -12,7 +12,12 @@ const player = new Player();
 
 const getVideoChapters = async (videoId: string) => {
     const videoData = await getVideoData(videoId, process.env['YOUTUBE_API_KEY']);
-    const chapters = getChapters(videoData.description);
+
+    let chapters = [];
+
+    if (videoData?.description) {
+        chapters = getChapters(videoData?.description);
+    }
 
     return chapters;
 };

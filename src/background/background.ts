@@ -3,7 +3,7 @@ import { COMMANDS, MESSAGES } from '../constants';
 const runCommand = (step: number) => {
     chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
         var activeTab = tabs[0];
-        chrome.tabs.sendMessage(activeTab.id, { message: MESSAGES.CHANGE_CHAPTER, chapterChangeData: { step } });
+        chrome.tabs.sendMessage(activeTab?.id, { message: MESSAGES.CHANGE_CHAPTER, chapterChangeData: { step } });
     });
 };
 
@@ -25,7 +25,7 @@ chrome.commands.onCommand.addListener((command) => {
 chrome.tabs.onActivated.addListener(() => {
     chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
         var activeTab = tabs[0];
-        chrome.tabs.sendMessage(activeTab.id, { message: MESSAGES.CHANGE_ACTIVE_TAB });
+        chrome.tabs.sendMessage(activeTab?.id, { message: MESSAGES.CHANGE_ACTIVE_TAB });
     });
 });
 

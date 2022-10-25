@@ -19,10 +19,7 @@ const getChapters = (id: string): Promise<Chapter[]> => {
     return new Promise<Chapter[]>((resolve) => {
         const key = `${LocalStorageKeys.CHAPTERS}-${id}`;
     
-        console.log('==>key', key);
-
         chrome.storage.local.get([key], (result) => {
-            console.log('==>result', result);
             resolve(result[key]);
         });
     });
