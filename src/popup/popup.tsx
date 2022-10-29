@@ -18,7 +18,9 @@ const changeChapter = (chapterChangeData: IChapterChangeData) => {
 
 const App: React.FC<{}> = () => {
     const [loading, setLoading] = useState<boolean>(true);
+    const leaveTimerRef = useRef<number>();
     const videoIdRef = useRef<string>();
+    const wasActionFiredRef = useRef<boolean>(false);
     const [isMac, setIsMac] = useState<boolean>(false);
     const [chapters, setChapters] = useState<Chapter[]>([]);
     const [currentTime, setCurrentTime] = useState<number>(0);
@@ -53,22 +55,43 @@ const App: React.FC<{}> = () => {
         return () => clearInterval(timer);
     }, []);
 
-    const handlePreviousClick = () => changeChapter({ step: -1 });
+    const handlePreviousClick = () => {
+        changeChapter({ step: -1 });
+        wasActionFiredRef.current = true;
+    };
 
-    const handleNextClick = () => changeChapter({ step: 1 });
+    const handleNextClick = () => {
+        changeChapter({ step: 1 });
+        wasActionFiredRef.current = true;
+    };
 
     const handleChapterClick = (chapter: Chapter) => {
         changeChapter({ time: chapter.start });
         Storage.setCurrentTime(videoIdRef.current, chapter.start).then(() => setCurrentTime(chapter.start));
+        wasActionFiredRef.current = true;
+    };
+
+    const handleMouseLeavePopup = () => {
+        if (wasActionFiredRef.current) {
+            leaveTimerRef.current = setTimeout(() => window.close(), 1000) as unknown as number;
+        }
+    };
+
+    const handleMouseHoverPopup = () => {
+        if (leaveTimerRef.current) {
+            clearTimeout(leaveTimerRef.current);
+            leaveTimerRef.current = null;
+            wasActionFiredRef.current = false;
+        }
     };
 
     return (
-        <div className='content'>
+        <div onMouseLeave={handleMouseLeavePopup} onMouseOver={handleMouseHoverPopup} className='content'>
             <div className='buttons'>
-                <p>{isMac ? "Shift + Command + Left" : "Shift + Alt + Left"}</p>
+                <p>{isMac ? 'Shift + Command + Left' : 'Shift + Alt + Left'}</p>
                 <button onClick={handlePreviousClick}>prev</button>
                 <button onClick={handleNextClick}>next</button>
-                <p>{isMac ? "Shift + Command + Right" : "Shift + Alt + Right"}</p>
+                <p>{isMac ? 'Shift + Command + Right' : 'Shift + Alt + Right'}</p>
             </div>
             {loading && <h5>Loading</h5>}
             {!loading && (
