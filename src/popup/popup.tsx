@@ -6,7 +6,7 @@ import Storage from '../storage';
 
 import './popup.css';
 import { containsTimeChapter } from '../helpers';
-import { MESSAGES } from '../constants';
+import { MAC_OS, MESSAGES } from '../constants';
 import { IChapterChangeData } from '../types';
 
 const changeChapter = (chapterChangeData: IChapterChangeData) => {
@@ -19,11 +19,16 @@ const changeChapter = (chapterChangeData: IChapterChangeData) => {
 const App: React.FC<{}> = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const videoIdRef = useRef<string>();
+    const [isMac, setIsMac] = useState<boolean>(false);
     const [chapters, setChapters] = useState<Chapter[]>([]);
     const [currentTime, setCurrentTime] = useState<number>(0);
     const [duration, setDuration] = useState<number>(0);
 
     useEffect(() => {
+        chrome.runtime.getPlatformInfo(function (info) {
+            setIsMac(info.os === MAC_OS);
+        });
+
         Storage.getActiveVideoId()
             .then((id) => {
                 videoIdRef.current = id;
@@ -60,8 +65,10 @@ const App: React.FC<{}> = () => {
     return (
         <div className='content'>
             <div className='buttons'>
+                <p>{isMac ? "Shift + Command + Left" : "Shift + Alt + Left"}</p>
                 <button onClick={handlePreviousClick}>prev</button>
                 <button onClick={handleNextClick}>next</button>
+                <p>{isMac ? "Shift + Command + Right" : "Shift + Alt + Right"}</p>
             </div>
             {loading && <h5>Loading</h5>}
             {!loading && (

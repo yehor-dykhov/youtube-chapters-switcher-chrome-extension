@@ -10,3 +10,5 @@ export const COMMANDS = {
     NEXT_CHAPTER: 'ycs-forward',
     PREV_CHAPTER: 'ycs-back',
 };
+
+export const MAC_OS = 'mac';
