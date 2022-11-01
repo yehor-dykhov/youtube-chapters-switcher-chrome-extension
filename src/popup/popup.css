@@ -1,38 +1,41 @@
 body {
-  background-color: white;
+  background: none;
+  padding: 0px;
+  margin: 0px;
 }
 
 .content {
-  width: 400px;
+  width: 500px;
   padding: 10px;
 }
 
 .chapters {
   height: 350px;
   overflow-x: auto;
-}
-
-.chapter {
-
-}
-
-.chapter:hover {
-  cursor: pointer;
-  font-weight: 700;
-}
-
-.selected {
-  color: red;
-  font-weight: 700;
+  margin-top: 10px;
 }
 
 .buttons {
   display: flex;
   flex-direction: row;
   justify-content: center;
+  align-items: center;
   gap: 10px;
+  margin-bottom: 10px;
 }
 
 .buttons p {
+  color: rgb(133, 133, 134);
+}
+
+.divider {
+  width: 100%;
+  border-bottom-color: rgba(0, 0, 0, 0.12);
+  border-width: 1px;
+  border-style: solid;
+  border-top: none;
+}
+
+.hint {
   color: rgb(133, 133, 134);
 }

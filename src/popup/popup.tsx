@@ -2,8 +2,14 @@ import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Chapter } from 'get-youtube-chapters';
 
-import Storage from '../storage';
+import { Button } from '@rmwc/button';
+import '@rmwc/button/styles';
+import { Typography } from '@rmwc/typography';
+import '@rmwc/typography/styles';
+import { List, ListItem } from '@rmwc/list';
+import '@rmwc/list/styles';
 
+import Storage from '../storage';
 import './popup.css';
 import { containsTimeChapter } from '../helpers';
 import { MAC_OS, MESSAGES } from '../constants';
@@ -84,31 +90,28 @@ const App: React.FC<{}> = () => {
             wasActionFiredRef.current = false;
         }
     };
-
+    
     return (
         <div onMouseLeave={handleMouseLeavePopup} onMouseOver={handleMouseHoverPopup} className='content'>
             <div className='buttons'>
-                <p>{isMac ? 'Shift + Command + Left' : 'Shift + Alt + Left'}</p>
-                <button onClick={handlePreviousClick}>prev</button>
-                <button onClick={handleNextClick}>next</button>
-                <p>{isMac ? 'Shift + Command + Right' : 'Shift + Alt + Right'}</p>
+                <Typography className='hint' use='caption'>{isMac ? 'Shift + Command + Left' : 'Shift + Alt + Left'}</Typography>
+                <Button onClick={handlePreviousClick} label='prev' unelevated />
+                <Button onClick={handleNextClick} label='next' unelevated />
+                <Typography className='hint' use='caption'>{isMac ? 'Shift + Command + Right' : 'Shift + Alt + Right'}</Typography>
             </div>
-            {loading && <h5>Loading</h5>}
+            <div className='divider' />
             {!loading && (
                 <div className='chapters'>
-                    {chapters.map((ch) => (
-                        <p
-                            key={`${ch.title}_${ch.start}`}
-                            className={
-                                containsTimeChapter(chapters, ch, currentTime, duration)
-                                    ? 'chapter selected'
-                                    : 'chapter'
-                            }
-                            onClick={() => handleChapterClick(ch)}
-                        >
-                            {ch.title}
-                        </p>
-                    ))}
+                    <List dense>
+                        {chapters.map((ch) => (
+                            <ListItem
+                                selected={containsTimeChapter(chapters, ch, currentTime, duration)}
+                                onClick={() => handleChapterClick(ch)}
+                            >
+                                {ch.title}
+                            </ListItem>
+                        ))}
+                    </List>
                 </div>
             )}
         </div>
