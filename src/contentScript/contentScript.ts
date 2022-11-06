@@ -79,7 +79,11 @@ const initializeChapters = async (href: string) => {
 };
 
 window.addEventListener('load', async (event) => {
-    initializeChapters(window.location.href);
+    chrome.runtime.sendMessage({ message: MESSAGES.GET_TAB_INFO }, (tab) => {
+        if (tab.active) {
+            initializeChapters(window.location.href);
+        }
+    });
 });
 
 chrome.runtime.onMessage.addListener(async (request) => {
@@ -133,8 +137,6 @@ chrome.runtime.onMessage.addListener(async (request) => {
     }
 
     if (message === MESSAGES.CHANGE_ACTIVE_TAB) {
-        const videoId = getYoutubeVideoId(window.location.href);
-
-        Storage.setActiveVideoId(videoId);
+        initializeChapters(window.location.href)
     }
 });
