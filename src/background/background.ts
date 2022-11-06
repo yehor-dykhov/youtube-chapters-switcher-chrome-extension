@@ -29,8 +29,8 @@ chrome.tabs.onActivated.addListener(() => {
     });
 });
 
-chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
-    if (changeInfo.url) {
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    if (changeInfo.url && tab.active) {
         chrome.tabs.sendMessage(tabId, {
             message: MESSAGES.CHANGE_URL,
             url: changeInfo.url,
@@ -38,7 +38,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
     }
 });
 
-chrome.runtime.onMessage.addListener((data) => {
+chrome.runtime.onMessage.addListener((data, sender, sendResponse) => {
     switch (data.message) {
         case MESSAGES.CHANGE_ACTIVE_ICON: {
             chrome.action.setIcon({ path: data.isActive ? 'icon.png' : 'icon_disabled.png' });
@@ -46,6 +46,10 @@ chrome.runtime.onMessage.addListener((data) => {
         }
         case MESSAGES.CHANGE_ICON_TEXT: {
             chrome.action.setBadgeText({ text: data.count > 0 ? `${data.count}` : '' });
+            break;
+        }
+        case MESSAGES.GET_TAB_INFO: {
+            sendResponse(sender?.tab);
             break;
         }
     }
