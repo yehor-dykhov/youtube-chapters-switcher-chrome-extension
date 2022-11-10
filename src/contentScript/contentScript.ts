@@ -87,13 +87,13 @@ window.addEventListener('load', async (event) => {
 });
 
 chrome.runtime.onMessage.addListener(async (request) => {
-    const { message, url, chapterChangeData } = request;
+    const { message, url, data } = request;
 
     if (message === MESSAGES.CHANGE_URL) {
         initializeChapters(url);
     }
 
-    if (message === MESSAGES.CHANGE_CHAPTER && !isNaN(chapterChangeData?.step)) {
+    if (message === MESSAGES.CHANGE_CHAPTER && !isNaN(data?.step)) {
         const videoId = getYoutubeVideoId(window.location.href);
 
         Storage.getChapters(videoId).then((chs) => {
@@ -114,29 +114,29 @@ chrome.runtime.onMessage.addListener(async (request) => {
                 }
             });
 
-            if (currentTime === duration && chapterChangeData.step === 1) {
+            if (currentTime === duration && data.step === 1) {
                 return;
             }
 
-            if (currentIndex === chs.length - 1 && chapterChangeData.step === 1) {
+            if (currentIndex === chs.length - 1 && data.step === 1) {
                 player.currentTime = duration;
                 return;
             }
 
-            if (currentIndex === 0 && chapterChangeData.step === -1) {
+            if (currentIndex === 0 && data.step === -1) {
                 player.currentTime = chs[currentIndex].start;
                 return;
             }
 
-            player.currentTime = chs[currentIndex + chapterChangeData.step].start;
+            player.currentTime = chs[currentIndex + data.step].start;
         });
     }
 
-    if (message === MESSAGES.CHANGE_CHAPTER && !isNaN(chapterChangeData?.time)) {
-        player.currentTime = chapterChangeData.time;
+    if (message === MESSAGES.CHANGE_CHAPTER && !isNaN(data?.time)) {
+        player.currentTime = data.time;
     }
 
-    if (message === MESSAGES.CHANGE_ACTIVE_TAB) {
+    if (message === MESSAGES.CHANGE_ACTIVE_TAB || message === MESSAGES.FORCE_INIT) {
         initializeChapters(window.location.href)
     }
 });

@@ -11,15 +11,12 @@ import '@rmwc/list/styles';
 
 import Storage from '../storage';
 import './popup.css';
-import { containsTimeChapter } from '../helpers';
+import { containsTimeChapter, sendMessageToActiveTab } from '../helpers';
 import { MAC_OS, MESSAGES } from '../constants';
 import { IChapterChangeData } from '../types';
 
 const changeChapter = (chapterChangeData: IChapterChangeData) => {
-    chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
-        var activeTab = tabs[0];
-        chrome.tabs.sendMessage(activeTab.id, { message: MESSAGES.CHANGE_CHAPTER, chapterChangeData });
-    });
+    sendMessageToActiveTab(MESSAGES.CHANGE_CHAPTER, chapterChangeData)
 };
 
 const App: React.FC<{}> = () => {

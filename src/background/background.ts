@@ -1,10 +1,10 @@
 import { COMMANDS, MESSAGES } from '../constants';
+import { sendMessageToActiveTab } from '../helpers';
+import { IdleState } from '../types';
+import Storage from '../storage';
 
 const runCommand = (step: number) => {
-    chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
-        var activeTab = tabs[0];
-        chrome.tabs.sendMessage(activeTab?.id, { message: MESSAGES.CHANGE_CHAPTER, chapterChangeData: { step } });
-    });
+    sendMessageToActiveTab(MESSAGES.CHANGE_CHAPTER, { step });
 };
 
 chrome.commands.onCommand.addListener((command) => {
@@ -23,10 +23,7 @@ chrome.commands.onCommand.addListener((command) => {
 });
 
 chrome.tabs.onActivated.addListener(() => {
-    chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
-        var activeTab = tabs[0];
-        chrome.tabs.sendMessage(activeTab?.id, { message: MESSAGES.CHANGE_ACTIVE_TAB });
-    });
+    sendMessageToActiveTab(MESSAGES.CHANGE_ACTIVE_TAB);
 });
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
@@ -35,6 +32,16 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
             message: MESSAGES.CHANGE_URL,
             url: changeInfo.url,
         });
+    }
+});
+
+chrome.idle.onStateChanged.addListener((newState) => {
+    if (newState === IdleState.ACTIVE) {
+        sendMessageToActiveTab(MESSAGES.FORCE_INIT);
+    }
+
+    if (newState === IdleState.LOCKED) {
+        Storage.cleanUpStorage();
     }
 });
 
