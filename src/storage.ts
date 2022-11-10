@@ -77,6 +77,10 @@ const getActiveVideoId = (): Promise<string | null> => {
     });
 };
 
+const cleanUpStorage = async () => {
+    await chrome.storage.local.clear();
+};
+
 export default {
     setChapters,
     getChapters,
@@ -85,5 +89,6 @@ export default {
     setDuration,
     getDuration,
     setActiveVideoId,
-    getActiveVideoId
+    getActiveVideoId,
+    cleanUpStorage
 };

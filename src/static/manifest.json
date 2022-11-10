@@ -17,7 +17,7 @@
             "32": "icon.png"
         }
     },
-    "permissions": ["storage", "commands", "tabs"],
+    "permissions": ["storage", "commands", "tabs", "idle"],
     "options_page": "options.html",
     "background": {
         "service_worker": "background.js"

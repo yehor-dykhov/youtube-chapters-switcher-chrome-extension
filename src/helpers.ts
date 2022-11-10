@@ -33,3 +33,10 @@ export const containsTimeChapter = (chapters: Chapter[], chapter: Chapter, curre
         (currentTime >= chapter.start && currentTime < chapters[index + 1]?.start)
     );
 };
+
+export const sendMessageToActiveTab = (message: string, data?: any) => {
+    chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+        var activeTab = tabs[0];
+        chrome.tabs.sendMessage(activeTab?.id, { message, data });
+    });
+};
