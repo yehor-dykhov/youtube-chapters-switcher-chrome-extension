@@ -7,6 +7,11 @@ const runCommand = (step: number) => {
     sendMessageToActiveTab(MESSAGES.CHANGE_CHAPTER, { step });
 };
 
+const resetBadgeDetails = () => {
+    chrome.action.setIcon({ path: 'icon_disabled.png' });
+    chrome.action.setBadgeText({ text: '' });
+};
+
 chrome.commands.onCommand.addListener((command) => {
     switch (command) {
         case COMMANDS.NEXT_CHAPTER: {
@@ -23,6 +28,8 @@ chrome.commands.onCommand.addListener((command) => {
 });
 
 chrome.tabs.onActivated.addListener(() => {
+    resetBadgeDetails();
+
     sendMessageToActiveTab(MESSAGES.CHANGE_ACTIVE_TAB);
 });
 
