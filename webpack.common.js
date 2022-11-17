@@ -1,9 +1,10 @@
 const path = require('path');
 const Dotenv = require('dotenv-webpack');
-const webpack = require('webpack');
 const CopyPlugin = require('copy-webpack-plugin');
 const HtmlPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+
+const isDev = process.env.NODE_ENV === 'development';
 
 module.exports = {
     entry: {
@@ -40,7 +41,11 @@ module.exports = {
         new CopyPlugin({
             patterns: [
                 {
-                    from: path.resolve('src/static'),
+                    from: isDev ? path.resolve('src/static/dev') : path.resolve('src/static/prod'),
+                    to: path.resolve('dist'),
+                },
+                {
+                    from: path.resolve('src/static/manifest.json'),
                     to: path.resolve('dist'),
                 },
             ],
