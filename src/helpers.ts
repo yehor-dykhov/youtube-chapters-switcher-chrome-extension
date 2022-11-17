@@ -1,4 +1,6 @@
 import { Chapter } from 'get-youtube-chapters';
+import getYoutubeVideoId from 'get-youtube-id';
+
 import { YoutubeBody, YoutubeVideoInfo } from './types';
 
 export const getVideoData = async (id, API_KEY): Promise<YoutubeVideoInfo> => {
@@ -37,6 +39,9 @@ export const containsTimeChapter = (chapters: Chapter[], chapter: Chapter, curre
 export const sendMessageToActiveTab = (message: string, data?: any) => {
     chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
         var activeTab = tabs[0];
-        chrome.tabs.sendMessage(activeTab?.id, { message, data });
+
+        if (getYoutubeVideoId(activeTab?.url)) {
+            chrome.tabs.sendMessage(activeTab?.id, { message, data });
+        }
     });
 };
