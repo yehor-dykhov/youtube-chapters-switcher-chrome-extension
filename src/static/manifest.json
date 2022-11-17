@@ -1,7 +1,7 @@
 {
     "name": "Youtube Chapters Switcher",
     "description": "The extension for chrome which allowed to switch between chapters in youtube player",
-    "version": "1.0.0",
+    "version": "1.0.2",
     "manifest_version": 3,
     "icons": {
         "16": "icon.png",
